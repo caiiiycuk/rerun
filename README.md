@@ -1,5 +1,7 @@
 # rerun tool
 
+[![Rust](https://github.com/caiiiycuk/rerun/actions/workflows/build.yml/badge.svg)](https://github.com/caiiiycuk/rerun/actions/workflows/build.yml)
+
 A simple tool to run a program infinitely (reruns on close).
 
 This tool follows this logic:
