@@ -16,10 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install musl
+      run: rustup target add x86_64-unknown-linux-musl
     - name: Build
-      run: cargo build --verbose --release
+      run: cargo build --verbose --release --target=x86_64-unknown-linux-musl
     - name: Run tests
-      run: cargo test --verbose --release
+      run: cargo test --verbose --release --target=x86_64-unknown-linux-musl
     - uses: actions/upload-artifact@v4
       with:
         name: rerun-linux
