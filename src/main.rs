@@ -108,6 +108,7 @@ fn rerun(deps: &[String], cmd: &String, args: &[String], running: Arc<AtomicBool
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .args(args)
+        .env("RUST_BACKTRACE", "1")
         .spawn()
     {
         Ok(mut child) => match (child.stdout.take(), child.stderr.take()) {
