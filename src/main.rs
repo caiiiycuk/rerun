@@ -1,6 +1,6 @@
 use nix::sys::signal::{self, Signal};
 use nix::unistd::Pid;
-use notify::{recommended_watcher, Error, Event, RecursiveMode, Watcher};
+use notify::{Config, Error, Event, PollWatcher, RecursiveMode, Watcher};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process::Stdio;
@@ -66,13 +66,18 @@ With deps watch:
 fn rerun(deps: &[String], cmd: &String, args: &[String], running: Arc<AtomicBool>) {
     let env_same = Arc::new(AtomicBool::new(true));
     let env_same_ref = env_same.clone();
-    let _watcher = match recommended_watcher(move |res: Result<Event, Error>| match res {
-        Ok(event) => {
-            println!("{}rerun: changed {:?}{}", OK_COLOR, event.paths, DEF_COLOR);
-            env_same_ref.store(false, Ordering::SeqCst);
-        }
-        Err(e) => eprintln!("{}watch error: {:?}{}", ERR_COLOR, e, ERR_COLOR),
-    }) {
+    let _watcher = match PollWatcher::new(
+        move |res: Result<Event, Error>| match res {
+            Ok(event) => {
+                println!("{}rerun: changed {:?}{}", OK_COLOR, event.paths, DEF_COLOR);
+                env_same_ref.store(false, Ordering::SeqCst);
+            }
+            Err(e) => eprintln!("{}watch error: {:?}{}", ERR_COLOR, e, ERR_COLOR),
+        },
+        Config::default()
+            .with_poll_interval(Duration::from_secs(5))
+            .with_compare_contents(false),
+    ) {
         Ok(mut watcher) => {
             let mut watch_fn =
                 |next: &String| match watcher.watch(Path::new(next), RecursiveMode::Recursive) {
